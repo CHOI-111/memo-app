@@ -1,0 +1,787 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>메모장 앱</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            500: '#667eea',
+                            600: '#5568d3',
+                            700: '#4c63d2',
+                        },
+                        secondary: {
+                            500: '#764ba2',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="min-h-screen bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 p-5">
+    <!-- 로그인/회원가입 화면 -->
+    <div id="authScreen" class="max-w-md mx-auto mt-20">
+        <div class="bg-white/95 backdrop-blur-sm rounded-2xl p-8 shadow-xl">
+            <h2 class="text-3xl font-bold text-center mb-8 bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
+                메모장
+            </h2>
+            
+            <!-- 로그인 폼 -->
+            <div id="loginForm">
+                <h3 class="text-2xl font-semibold text-gray-800 mb-6 text-center">로그인</h3>
+                <div class="space-y-4">
+                    <div>
+                        <input 
+                            type="text" 
+                            id="loginUsername"
+                            placeholder="사용자명 또는 이메일"
+                            class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 outline-none transition-all duration-200"
+                        />
+                    </div>
+                    <div>
+                        <input 
+                            type="password" 
+                            id="loginPassword"
+                            placeholder="비밀번호"
+                            class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 outline-none transition-all duration-200"
+                        />
+                    </div>
+                    <div id="loginError" class="text-red-500 text-sm hidden"></div>
+                    <button 
+                        id="loginBtn"
+                        class="w-full px-6 py-3 bg-gradient-to-r from-indigo-500 to-purple-600 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl hover:scale-105 active:scale-95 transition-all duration-200"
+                    >
+                        로그인
+                    </button>
+                    <p class="text-center text-gray-600">
+                        계정이 없으신가요? 
+                        <button id="showRegisterBtn" class="text-indigo-600 hover:text-indigo-700 font-semibold">
+                            회원가입
+                        </button>
+                    </p>
+                </div>
+            </div>
+
+            <!-- 회원가입 폼 -->
+            <div id="registerForm" class="hidden">
+                <h3 class="text-2xl font-semibold text-gray-800 mb-6 text-center">회원가입</h3>
+                <div class="space-y-4">
+                    <div>
+                        <input 
+                            type="text" 
+                            id="registerUsername"
+                            placeholder="사용자명"
+                            class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 outline-none transition-all duration-200"
+                        />
+                    </div>
+                    <div>
+                        <input 
+                            type="email" 
+                            id="registerEmail"
+                            placeholder="이메일"
+                            class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 outline-none transition-all duration-200"
+                        />
+                    </div>
+                    <div>
+                        <input 
+                            type="password" 
+                            id="registerPassword"
+                            placeholder="비밀번호 (최소 6자)"
+                            class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 outline-none transition-all duration-200"
+                        />
+                    </div>
+                    <div id="registerError" class="text-red-500 text-sm hidden"></div>
+                    <button 
+                        id="registerBtn"
+                        class="w-full px-6 py-3 bg-gradient-to-r from-indigo-500 to-purple-600 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl hover:scale-105 active:scale-95 transition-all duration-200"
+                    >
+                        회원가입
+                    </button>
+                    <p class="text-center text-gray-600">
+                        이미 계정이 있으신가요? 
+                        <button id="showLoginBtn" class="text-indigo-600 hover:text-indigo-700 font-semibold">
+                            로그인
+                        </button>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 메모장 메인 화면 -->
+    <div id="memoScreen" class="max-w-4xl mx-auto hidden">
+        <header class="flex justify-between items-center mb-8 bg-white/95 backdrop-blur-sm rounded-2xl px-8 py-6 shadow-xl">
+            <div>
+                <h1 class="text-3xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
+                    메모장
+                </h1>
+                <p class="text-sm text-gray-600 mt-1" id="userInfo">안녕하세요, <span id="usernameDisplay"></span>님!</p>
+            </div>
+            <div class="flex gap-3 items-center">
+                <button 
+                    id="newMemoBtn" 
+                    class="px-6 py-3 bg-gradient-to-r from-indigo-500 to-purple-600 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl hover:scale-105 active:scale-95 transition-all duration-200"
+                >
+                    ✨ 새 메모
+                </button>
+                <button 
+                    id="logoutBtn"
+                    class="px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-700 font-semibold rounded-lg shadow-md hover:shadow-lg transition-all duration-200"
+                >
+                    로그아웃
+                </button>
+            </div>
+        </header>
+
+        <div class="relative mb-6">
+            <input 
+                type="text" 
+                id="searchInput"
+                placeholder="🔍 메모 검색..."
+                class="w-full px-5 py-4 pr-12 bg-white/95 backdrop-blur-sm rounded-xl shadow-lg focus:shadow-xl focus:ring-2 focus:ring-indigo-400 outline-none transition-all duration-200 text-gray-700 placeholder-gray-400"
+            />
+            <button 
+                id="clearSearchBtn"
+                class="absolute right-4 top-1/2 -translate-y-1/2 w-8 h-8 bg-gray-200 hover:bg-gray-300 rounded-full flex items-center justify-center text-gray-600 hover:scale-110 transition-all duration-200 hidden"
+            >
+                ✕
+            </button>
+        </div>
+
+        <div id="memosContainer" class="space-y-4">
+            <div class="text-center py-16 px-8 bg-white/95 backdrop-blur-sm rounded-2xl shadow-lg text-gray-500 text-lg">
+                메모가 없습니다. 새 메모를 만들어보세요!
+            </div>
+        </div>
+    </div>
+
+    <!-- 개발자 페이지 버튼 -->
+    <div class="fixed bottom-4 right-4">
+        <button 
+            id="devPageBtn"
+            class="px-3 py-1.5 text-xs bg-gray-600 hover:bg-gray-700 text-white rounded-lg shadow-md hover:shadow-lg transition-all duration-200 opacity-50 hover:opacity-100"
+            title="개발자 페이지"
+        >
+            🔧 개발자
+        </button>
+    </div>
+
+    <!-- 개발자 페이지 모달 -->
+    <div id="devModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
+        <div class="bg-white rounded-2xl p-8 max-w-4xl w-full mx-4 max-h-[90vh] overflow-y-auto">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-bold text-gray-800">개발자 페이지</h2>
+                <button 
+                    id="closeDevModal"
+                    class="text-gray-500 hover:text-gray-700 text-2xl"
+                >
+                    ✕
+                </button>
+            </div>
+
+            <!-- 비밀번호 입력 화면 -->
+            <div id="devPasswordScreen">
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">비밀번호</label>
+                    <input 
+                        type="password" 
+                        id="devPassword"
+                        placeholder="비밀번호를 입력하세요"
+                        class="w-full px-4 py-2 border-2 border-gray-200 rounded-lg focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 outline-none"
+                    />
+                    <div id="devPasswordError" class="text-red-500 text-sm mt-2 hidden"></div>
+                </div>
+                <button 
+                    id="devPasswordBtn"
+                    class="w-full px-4 py-2 bg-indigo-500 hover:bg-indigo-600 text-white rounded-lg font-semibold transition-all duration-200"
+                >
+                    확인
+                </button>
+            </div>
+
+            <!-- 개발자 페이지 내용 -->
+            <div id="devContent" class="hidden">
+                <!-- 사용자 목록 -->
+                <div class="mb-8">
+                    <h3 class="text-xl font-bold text-gray-800 mb-4">사용자 목록</h3>
+                    <div class="bg-gray-50 rounded-lg p-4">
+                        <div id="usersList" class="space-y-2">
+                            <!-- 사용자 목록이 여기에 표시됩니다 -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 메모 목록 -->
+                <div>
+                    <h3 class="text-xl font-bold text-gray-800 mb-4">전체 메모 목록</h3>
+                    <div id="allMemosList" class="space-y-3">
+                        <!-- 메모 목록이 여기에 표시됩니다 -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 로컬 스토리지 기반 사용자 관리 (서버 없이 작동)
+        let memos = [];
+        let searchQuery = '';
+        let currentUser = null;
+
+        // 간단한 비밀번호 해시 함수 (브라우저에서만 사용)
+        function simpleHash(str) {
+            let hash = 0;
+            for (let i = 0; i < str.length; i++) {
+                const char = str.charCodeAt(i);
+                hash = ((hash << 5) - hash) + char;
+                hash = hash & hash; // 32bit 정수로 변환
+            }
+            return hash.toString();
+        }
+
+        // 사용자 데이터 불러오기
+        function getUsers() {
+            const usersData = localStorage.getItem('app_users');
+            return usersData ? JSON.parse(usersData) : [];
+        }
+
+        // 사용자 데이터 저장
+        function saveUsers(users) {
+            localStorage.setItem('app_users', JSON.stringify(users));
+        }
+
+        // 현재 사용자의 메모 불러오기
+        function getUserMemos() {
+            if (!currentUser) return [];
+            const allMemos = JSON.parse(localStorage.getItem('app_memos') || '[]');
+            return allMemos.filter(memo => memo.user_id === currentUser.id);
+        }
+
+        // 현재 사용자의 메모 저장
+        function saveUserMemos(userMemos) {
+            const allMemos = JSON.parse(localStorage.getItem('app_memos') || '[]');
+            // 현재 사용자의 메모 제거
+            const otherMemos = allMemos.filter(memo => memo.user_id !== currentUser.id);
+            // 현재 사용자의 메모 추가
+            const updatedMemos = [...otherMemos, ...userMemos];
+            localStorage.setItem('app_memos', JSON.stringify(updatedMemos));
+        }
+
+        // 로그인
+        function handleLogin() {
+            const username = document.getElementById('loginUsername').value;
+            const password = document.getElementById('loginPassword').value;
+            const errorDiv = document.getElementById('loginError');
+            const loginBtn = document.getElementById('loginBtn');
+
+            if (!username || !password) {
+                errorDiv.textContent = '모든 필드를 입력해주세요.';
+                errorDiv.classList.remove('hidden');
+                return;
+            }
+
+            // 버튼 비활성화
+            loginBtn.disabled = true;
+            loginBtn.textContent = '로그인 중...';
+            errorDiv.classList.add('hidden');
+
+            // 약간의 지연으로 로딩 효과
+            setTimeout(() => {
+                try {
+                    const users = getUsers();
+                    const hashedPassword = simpleHash(password);
+                    
+                    // 사용자명 또는 이메일로 로그인 가능
+                    const user = users.find(u => 
+                        (u.username === username || u.email === username) && 
+                        u.password === hashedPassword
+                    );
+
+                    if (!user) {
+                        errorDiv.textContent = '사용자명 또는 비밀번호가 올바르지 않습니다.';
+                        errorDiv.classList.remove('hidden');
+                        loginBtn.disabled = false;
+                        loginBtn.textContent = '로그인';
+                        return;
+                    }
+
+                    // 로그인 성공
+                    currentUser = {
+                        id: user.id,
+                        username: user.username,
+                        email: user.email
+                    };
+                    localStorage.setItem('currentUser', JSON.stringify(currentUser));
+
+                    showMemoScreen();
+                    loadMemos();
+                } catch (error) {
+                    console.error('로그인 오류:', error);
+                    errorDiv.textContent = '로그인 중 오류가 발생했습니다.';
+                    errorDiv.classList.remove('hidden');
+                } finally {
+                    loginBtn.disabled = false;
+                    loginBtn.textContent = '로그인';
+                }
+            }, 300);
+        }
+
+        // 회원가입
+        function handleRegister() {
+            const username = document.getElementById('registerUsername').value.trim();
+            const email = document.getElementById('registerEmail').value.trim();
+            const password = document.getElementById('registerPassword').value;
+            const errorDiv = document.getElementById('registerError');
+            const registerBtn = document.getElementById('registerBtn');
+
+            if (!username || !email || !password) {
+                errorDiv.textContent = '모든 필드를 입력해주세요.';
+                errorDiv.classList.remove('hidden');
+                return;
+            }
+
+            if (password.length < 6) {
+                errorDiv.textContent = '비밀번호는 최소 6자 이상이어야 합니다.';
+                errorDiv.classList.remove('hidden');
+                return;
+            }
+
+            // 이메일 형식 간단 검증
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(email)) {
+                errorDiv.textContent = '올바른 이메일 형식을 입력해주세요.';
+                errorDiv.classList.remove('hidden');
+                return;
+            }
+
+            // 버튼 비활성화
+            registerBtn.disabled = true;
+            registerBtn.textContent = '회원가입 중...';
+            errorDiv.classList.add('hidden');
+
+            // 약간의 지연으로 로딩 효과
+            setTimeout(() => {
+                try {
+                    const users = getUsers();
+                    
+                    // 중복 확인
+                    const existingUser = users.find(u => 
+                        u.username === username || u.email === email
+                    );
+
+                    if (existingUser) {
+                        errorDiv.textContent = '이미 사용 중인 사용자명 또는 이메일입니다.';
+                        errorDiv.classList.remove('hidden');
+                        registerBtn.disabled = false;
+                        registerBtn.textContent = '회원가입';
+                        return;
+                    }
+
+                    // 새 사용자 생성
+                    const newUser = {
+                        id: Date.now(),
+                        username: username,
+                        email: email,
+                        password: simpleHash(password), // 비밀번호 해시 저장
+                        created_at: new Date().toISOString()
+                    };
+
+                    users.push(newUser);
+                    saveUsers(users);
+
+                    // 자동 로그인
+                    currentUser = {
+                        id: newUser.id,
+                        username: newUser.username,
+                        email: newUser.email
+                    };
+                    localStorage.setItem('currentUser', JSON.stringify(currentUser));
+
+                    showMemoScreen();
+                    loadMemos();
+                } catch (error) {
+                    console.error('회원가입 오류:', error);
+                    errorDiv.textContent = '회원가입 중 오류가 발생했습니다.';
+                    errorDiv.classList.remove('hidden');
+                } finally {
+                    registerBtn.disabled = false;
+                    registerBtn.textContent = '회원가입';
+                }
+            }, 300);
+        }
+
+        // 로그아웃
+        function handleLogout() {
+            currentUser = null;
+            memos = [];
+            localStorage.removeItem('currentUser');
+
+            showAuthScreen();
+        }
+
+        // 화면 전환
+        function showAuthScreen() {
+            document.getElementById('authScreen').classList.remove('hidden');
+            document.getElementById('memoScreen').classList.add('hidden');
+        }
+
+        function showMemoScreen() {
+            document.getElementById('authScreen').classList.add('hidden');
+            document.getElementById('memoScreen').classList.remove('hidden');
+            if (currentUser) {
+                document.getElementById('usernameDisplay').textContent = currentUser.username;
+            }
+        }
+
+        // 메모 불러오기
+        function loadMemos() {
+            if (!currentUser) {
+                memos = [];
+                renderMemos();
+                return;
+            }
+
+            const userMemos = getUserMemos();
+            memos = userMemos.map(memo => ({ ...memo, isEditing: false }));
+            renderMemos();
+        }
+
+        // 새 메모 생성
+        function handleNewMemo() {
+            if (!currentUser) {
+                alert('로그인이 필요합니다.');
+                return;
+            }
+
+            const newMemo = {
+                id: Date.now(),
+                user_id: currentUser.id,
+                title: '',
+                content: '',
+                isEditing: true,
+                created_at: new Date().toISOString(),
+                updated_at: new Date().toISOString()
+            };
+            
+            memos.unshift(newMemo);
+            saveUserMemos(memos);
+            renderMemos();
+
+            setTimeout(() => {
+                const titleInput = document.querySelector(`.memo-item[data-id="${newMemo.id}"] .memo-title-input`);
+                if (titleInput) {
+                    titleInput.focus();
+                }
+            }, 50);
+        }
+
+        // 메모 수정 모드 전환
+        function handleEdit(id) {
+            memos = memos.map(memo => 
+                memo.id === id 
+                    ? { ...memo, isEditing: true } 
+                    : { ...memo, isEditing: false }
+            );
+            renderMemos();
+        }
+
+        // 메모 저장
+        function handleSave(id) {
+            const memoElement = document.querySelector(`.memo-item[data-id="${id}"]`);
+            const titleInput = memoElement.querySelector('.memo-title-input');
+            const contentInput = memoElement.querySelector('.memo-content-input');
+            
+            const title = titleInput.value.trim();
+            const content = contentInput.value.trim();
+
+            memos = memos.map(memo => {
+                if (memo.id === id) {
+                    return {
+                        ...memo,
+                        title,
+                        content,
+                        isEditing: false,
+                        updated_at: new Date().toISOString()
+                    };
+                }
+                return memo;
+            });
+
+            saveUserMemos(memos);
+            renderMemos();
+        }
+
+        // 메모 취소
+        function handleCancel(id) {
+            memos = memos.map(memo =>
+                memo.id === id
+                    ? { ...memo, isEditing: false }
+                    : memo
+            );
+            renderMemos();
+        }
+
+        // 메모 삭제
+        function handleDelete(id) {
+            if (!confirm('정말 이 메모를 삭제하시겠습니까?')) {
+                return;
+            }
+
+            memos = memos.filter(memo => memo.id !== id);
+            saveUserMemos(memos);
+            renderMemos();
+        }
+
+        // 검색 필터링
+        function filterMemos() {
+            if (!searchQuery.trim()) {
+                return memos;
+            }
+            const query = searchQuery.toLowerCase();
+            return memos.filter(memo => {
+                return (
+                    (memo.title || '').toLowerCase().includes(query) ||
+                    (memo.content || '').toLowerCase().includes(query)
+                );
+            });
+        }
+
+        // 메모 렌더링
+        function renderMemos() {
+            const container = document.getElementById('memosContainer');
+            const filteredMemos = filterMemos();
+
+            if (filteredMemos.length === 0) {
+                const emptyText = searchQuery 
+                    ? '검색 결과가 없습니다.' 
+                    : '메모가 없습니다. 새 메모를 만들어보세요!';
+                container.innerHTML = `<div class="text-center py-16 px-8 bg-white/95 backdrop-blur-sm rounded-2xl shadow-lg text-gray-500 text-lg">${emptyText}</div>`;
+                return;
+            }
+
+            container.innerHTML = filteredMemos.map(memo => {
+                if (memo.isEditing) {
+                    return `
+                        <div class="memo-item bg-white/95 backdrop-blur-sm rounded-2xl p-6 shadow-xl border-2 border-indigo-300" data-id="${memo.id}">
+                            <div class="flex flex-col gap-4">
+                                <input
+                                    type="text"
+                                    class="memo-title-input px-4 py-3 border-2 border-gray-200 rounded-xl text-xl font-semibold focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 outline-none transition-all duration-200 text-gray-800"
+                                    placeholder="제목을 입력하세요..."
+                                    value="${(memo.title || '').replace(/"/g, '&quot;')}"
+                                />
+                                <textarea
+                                    class="memo-content-input px-4 py-3 border-2 border-gray-200 rounded-xl text-base resize-y focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 outline-none transition-all duration-200 text-gray-700"
+                                    placeholder="내용을 입력하세요..."
+                                    rows="8"
+                                >${(memo.content || '').replace(/</g, '&lt;').replace(/>/g, '&gt;')}</textarea>
+                                <div class="flex gap-3 justify-end">
+                                    <button class="px-6 py-2.5 bg-gradient-to-r from-indigo-500 to-purple-600 text-white font-semibold rounded-xl shadow-md hover:shadow-lg hover:scale-105 active:scale-95 transition-all duration-200" onclick="handleSave(${memo.id})">💾 저장</button>
+                                    <button class="px-6 py-2.5 bg-gray-200 hover:bg-gray-300 text-gray-700 font-semibold rounded-xl shadow-md hover:shadow-lg hover:scale-105 active:scale-95 transition-all duration-200" onclick="handleCancel(${memo.id})">취소</button>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                } else {
+                    const title = memo.title || '';
+                    const content = memo.content || '';
+                    const titleDisplay = title || '<span class="text-gray-400 italic">제목 없음</span>';
+                    const contentDisplay = content || '<div class="text-gray-400 italic mt-3">내용이 없습니다.</div>';
+                    
+                    return `
+                        <div class="memo-item bg-white/95 backdrop-blur-sm rounded-2xl p-6 shadow-lg hover:shadow-xl hover:-translate-y-1 transition-all duration-200" data-id="${memo.id}">
+                            <div class="flex justify-between items-start mb-3 gap-4">
+                                <h3 class="text-xl font-bold text-gray-800 flex-1 break-words">${titleDisplay}</h3>
+                                <div class="flex gap-2 flex-shrink-0">
+                                    <button class="px-4 py-2 bg-indigo-500 hover:bg-indigo-600 text-white text-sm font-medium rounded-lg shadow-md hover:shadow-lg hover:scale-105 active:scale-95 transition-all duration-200" onclick="handleEdit(${memo.id})">✏️ 수정</button>
+                                    <button class="px-4 py-2 bg-red-500 hover:bg-red-600 text-white text-sm font-medium rounded-lg shadow-md hover:shadow-lg hover:scale-105 active:scale-95 transition-all duration-200" onclick="handleDelete(${memo.id})">🗑️ 삭제</button>
+                                </div>
+                            </div>
+                            ${content ? `<div class="text-gray-600 leading-relaxed whitespace-pre-wrap break-words mt-3">${content.replace(/\n/g, '<br>')}</div>` : contentDisplay}
+                        </div>
+                    `;
+                }
+            }).join('');
+        }
+
+        // 검색 입력 처리
+        function handleSearch() {
+            searchQuery = document.getElementById('searchInput').value;
+            const clearBtn = document.getElementById('clearSearchBtn');
+            if (searchQuery) {
+                clearBtn.classList.remove('hidden');
+                clearBtn.classList.add('flex');
+            } else {
+                clearBtn.classList.add('hidden');
+                clearBtn.classList.remove('flex');
+            }
+            renderMemos();
+        }
+
+        // 검색 초기화
+        function clearSearch() {
+            document.getElementById('searchInput').value = '';
+            searchQuery = '';
+            const clearBtn = document.getElementById('clearSearchBtn');
+            clearBtn.classList.add('hidden');
+            clearBtn.classList.remove('flex');
+            renderMemos();
+        }
+
+        // 이벤트 리스너 등록
+        document.getElementById('loginBtn').addEventListener('click', handleLogin);
+        document.getElementById('registerBtn').addEventListener('click', handleRegister);
+        document.getElementById('logoutBtn').addEventListener('click', handleLogout);
+        document.getElementById('showRegisterBtn').addEventListener('click', () => {
+            document.getElementById('loginForm').classList.add('hidden');
+            document.getElementById('registerForm').classList.remove('hidden');
+        });
+        document.getElementById('showLoginBtn').addEventListener('click', () => {
+            document.getElementById('registerForm').classList.add('hidden');
+            document.getElementById('loginForm').classList.remove('hidden');
+        });
+        document.getElementById('newMemoBtn').addEventListener('click', handleNewMemo);
+        document.getElementById('searchInput').addEventListener('input', handleSearch);
+        document.getElementById('clearSearchBtn').addEventListener('click', clearSearch);
+
+        // Enter 키로 로그인/회원가입
+        document.getElementById('loginPassword').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') handleLogin();
+        });
+        document.getElementById('registerPassword').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') handleRegister();
+        });
+
+        // 개발자 페이지 열기
+        function openDevPage() {
+            document.getElementById('devModal').classList.remove('hidden');
+            document.getElementById('devModal').classList.add('flex');
+            document.getElementById('devPasswordScreen').classList.remove('hidden');
+            document.getElementById('devContent').classList.add('hidden');
+            document.getElementById('devPassword').value = '';
+            document.getElementById('devPasswordError').classList.add('hidden');
+        }
+
+        // 개발자 페이지 닫기
+        function closeDevPage() {
+            document.getElementById('devModal').classList.add('hidden');
+            document.getElementById('devModal').classList.remove('flex');
+        }
+
+        // 개발자 비밀번호 확인
+        function checkDevPassword() {
+            const password = document.getElementById('devPassword').value;
+            const errorDiv = document.getElementById('devPasswordError');
+
+            if (password === '1234') {
+                document.getElementById('devPasswordScreen').classList.add('hidden');
+                document.getElementById('devContent').classList.remove('hidden');
+                loadDevData();
+            } else {
+                errorDiv.textContent = '비밀번호가 올바르지 않습니다.';
+                errorDiv.classList.remove('hidden');
+            }
+        }
+
+        // 개발자 페이지 데이터 로드
+        function loadDevData() {
+            // 사용자 목록 로드
+            const users = getUsers();
+            const usersListDiv = document.getElementById('usersList');
+            
+            if (users.length === 0) {
+                usersListDiv.innerHTML = '<p class="text-gray-500">등록된 사용자가 없습니다.</p>';
+            } else {
+                usersListDiv.innerHTML = users.map(user => `
+                    <div class="bg-white p-3 rounded-lg border border-gray-200">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <p class="font-semibold text-gray-800">${user.username}</p>
+                                <p class="text-sm text-gray-600">${user.email}</p>
+                                <p class="text-xs text-gray-400 mt-1">가입일: ${new Date(user.created_at).toLocaleString('ko-KR')}</p>
+                            </div>
+                            <span class="text-xs bg-indigo-100 text-indigo-700 px-2 py-1 rounded">ID: ${user.id}</span>
+                        </div>
+                    </div>
+                `).join('');
+            }
+
+            // 전체 메모 목록 로드
+            const allMemos = JSON.parse(localStorage.getItem('app_memos') || '[]');
+            const memosListDiv = document.getElementById('allMemosList');
+            
+            if (allMemos.length === 0) {
+                memosListDiv.innerHTML = '<p class="text-gray-500">등록된 메모가 없습니다.</p>';
+            } else {
+                // 사용자 정보와 함께 표시
+                const memosWithUsers = allMemos.map(memo => {
+                    const user = users.find(u => u.id === memo.user_id);
+                    return {
+                        ...memo,
+                        username: user ? user.username : '알 수 없음',
+                        userEmail: user ? user.email : '알 수 없음'
+                    };
+                });
+
+                memosListDiv.innerHTML = memosWithUsers.map(memo => `
+                    <div class="bg-white p-4 rounded-lg border border-gray-200 shadow-sm">
+                        <div class="flex justify-between items-start mb-2">
+                            <div class="flex-1">
+                                <p class="font-semibold text-gray-800">${memo.title || '<span class="text-gray-400 italic">제목 없음</span>'}</p>
+                                <p class="text-sm text-gray-600 mt-1">작성자: ${memo.username} (${memo.userEmail})</p>
+                            </div>
+                            <span class="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded">ID: ${memo.id}</span>
+                        </div>
+                        <div class="text-sm text-gray-700 mt-2 whitespace-pre-wrap break-words">
+                            ${memo.content || '<span class="text-gray-400 italic">내용 없음</span>'}
+                        </div>
+                        <div class="text-xs text-gray-400 mt-2">
+                            작성일: ${new Date(memo.created_at).toLocaleString('ko-KR')} | 
+                            수정일: ${new Date(memo.updated_at).toLocaleString('ko-KR')}
+                        </div>
+                    </div>
+                `).join('');
+            }
+        }
+
+        // 개발자 페이지 이벤트
+        document.getElementById('devPageBtn').addEventListener('click', openDevPage);
+        document.getElementById('closeDevModal').addEventListener('click', closeDevPage);
+        document.getElementById('devPasswordBtn').addEventListener('click', checkDevPassword);
+        document.getElementById('devPassword').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                checkDevPassword();
+            }
+        });
+
+        // 모달 외부 클릭 시 닫기
+        document.getElementById('devModal').addEventListener('click', (e) => {
+            if (e.target.id === 'devModal') {
+                closeDevPage();
+            }
+        });
+
+        // 앱 초기화
+        const savedUser = localStorage.getItem('currentUser');
+        
+        if (savedUser) {
+            try {
+                currentUser = JSON.parse(savedUser);
+                showMemoScreen();
+                loadMemos();
+            } catch (e) {
+                localStorage.removeItem('currentUser');
+                showAuthScreen();
+            }
+        } else {
+            showAuthScreen();
+        }
+    </script>
+</body>
+</html>
