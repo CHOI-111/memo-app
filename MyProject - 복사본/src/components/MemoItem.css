@@ -1,0 +1,158 @@
+.memo-item {
+  background: white;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.memo-item:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+}
+
+.memo-item.editing {
+  box-shadow: 0 8px 16px rgba(102, 126, 234, 0.3);
+}
+
+.memo-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 12px;
+}
+
+.memo-title {
+  font-size: 20px;
+  font-weight: 600;
+  color: #333;
+  flex: 1;
+  margin-right: 15px;
+  word-break: break-word;
+}
+
+.memo-title.empty {
+  color: #999;
+  font-style: italic;
+}
+
+.memo-buttons {
+  display: flex;
+  gap: 8px;
+}
+
+.edit-btn,
+.delete-btn {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.edit-btn {
+  background: #667eea;
+  color: white;
+}
+
+.edit-btn:hover {
+  background: #5568d3;
+  transform: translateY(-1px);
+}
+
+.delete-btn {
+  background: #ef4444;
+  color: white;
+}
+
+.delete-btn:hover {
+  background: #dc2626;
+  transform: translateY(-1px);
+}
+
+.memo-content {
+  color: #555;
+  line-height: 1.6;
+  white-space: pre-wrap;
+  word-break: break-word;
+  margin-top: 12px;
+}
+
+.memo-content.empty {
+  color: #999;
+  font-style: italic;
+}
+
+.memo-form {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.memo-title-input {
+  padding: 12px;
+  border: 2px solid #e5e7eb;
+  border-radius: 8px;
+  font-size: 18px;
+  font-weight: 600;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.memo-title-input:focus {
+  border-color: #667eea;
+}
+
+.memo-content-input {
+  padding: 12px;
+  border: 2px solid #e5e7eb;
+  border-radius: 8px;
+  font-size: 16px;
+  font-family: inherit;
+  resize: vertical;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.memo-content-input:focus {
+  border-color: #667eea;
+}
+
+.memo-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+}
+
+.save-btn,
+.cancel-btn {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.save-btn {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+}
+
+.save-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(102, 126, 234, 0.4);
+}
+
+.cancel-btn {
+  background: #e5e7eb;
+  color: #666;
+}
+
+.cancel-btn:hover {
+  background: #d1d5db;
+  transform: translateY(-2px);
+}
